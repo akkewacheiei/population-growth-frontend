@@ -8,6 +8,7 @@ function App() {
   const [data, setData] = useState([]);
   const [focusYear, setFocusYear] = useState(1950);
   const [focusData, setFocusData] = useState([]);
+  const [totalPopulation, setTotalPopulation] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,9 +52,15 @@ function App() {
     return () => clearInterval(intervalId); // ทำความสะอาด interval เมื่อ component ถูก unmount
   }, [data, focusYear]);
 
-  const totalPopulation = focusData.reduce((accumulator, current) => {
-    return accumulator + current.population;
-  }, 0);
+  useEffect(() => {
+    if (focusData && focusData.length > 0) {
+      const totalPopulation = focusData.reduce((accumulator, current) => {
+        return accumulator + current.population;
+      }, 0);
+
+      setTotalPopulation(totalPopulation);
+    }
+  }, [focusData]);
 
   return (
     <div className="App" style={{ padding: "2%" }}>
