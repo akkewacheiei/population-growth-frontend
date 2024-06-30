@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from "react";
+import RegionLegend from "./components/RegionLegend";
+import PopulationBar from "./components/PopulationBar";
+import RulerBar from "./components/RulerBar";
+import "./App.css";
 
 function App() {
   const [data, setData] = useState([]);
@@ -47,82 +51,39 @@ function App() {
     return () => clearInterval(intervalId); // ทำความสะอาด interval เมื่อ component ถูก unmount
   }, [data, focusYear]);
 
+  const totalPopulation = focusData.reduce((accumulator, current) => {
+    return accumulator + current.population;
+  }, 0);
+
   return (
-    <div className="App">
+    <div className="App" style={{ padding: "2%" }}>
       <h1>Population growth per country, 1950 to 2021</h1>
       <p>Click on the legend below to filter by continent</p>
-      <div style={{ display: "flex", gap: 5 }}>
-        <p>Region</p>
-        <>
-          <div
-            style={{ backgroundColor: "#5A49D9", width: 20, height: 20 }}
-          ></div>
-          <p>Asia</p>
-        </>
-        <>
-          <div
-            style={{ backgroundColor: "#9F96E5", width: 20, height: 20 }}
-          ></div>
-          <p>Europe</p>
-        </>
-        <>
-          <div
-            style={{ backgroundColor: "#CA20A8", width: 20, height: 20 }}
-          ></div>
-          <p>Africa</p>
-        </>
-        <>
-          <div
-            style={{ backgroundColor: "#F3A5E4", width: 20, height: 20 }}
-          ></div>
-          <p>Oceania</p>
-        </>
-        <>
-          <div
-            style={{ backgroundColor: "#F5D638", width: 20, height: 20 }}
-          ></div>
-          <p>Americas</p>
-        </>
+      <RegionLegend />
+
+      <div style={{ padding: "2%", position: "relative" }}>
+        {focusData &&
+          focusData
+            .slice(0, 12)
+            .map((item, index) => (
+              <PopulationBar
+                item={item}
+                maxPopulation={focusData[0].population}
+              />
+            ))}
+        <div
+          style={{
+            position: "absolute",
+            bottom: 40,
+            right: 40,
+          }}
+        >
+          <h1 style={{ fontSize: 84, textAlign: "right" }}>{focusYear}</h1>
+          <h1 style={{ fontSize: 48 }}>Total: {totalPopulation}</h1>
+        </div>
       </div>
 
-      <div>
-        <h2>{focusYear}</h2>
-        <ul>
-          {focusData &&
-            focusData.slice(0, 12).map((item, index) => (
-              <div className="row" style={{ gap: 5 }}>
-                <p className="col-1">
-                  {item.country_name.split(" ")[1]
-                    ? `${item.country_name
-                        .split(" ")[0]
-                        .charAt(0)}${item.country_name.split(" ")[1].charAt(0)}`
-                    : item.country_name}
-                </p>
-                <div className="col" style={{ display: "flex" }}>
-                  <div
-                    style={{
-                      width: `${
-                        (item.population / focusData[0].population) * 100
-                      }%`,
-                      height: "20px",
-                      backgroundColor:
-                        item.region === "Asia"
-                          ? "#5A49D9"
-                          : item.region === "Europe"
-                          ? "#9F96E5"
-                          : item.region === "Africa"
-                          ? "#CA20A8"
-                          : item.region === "Oceania"
-                          ? "#F3A5E4"
-                          : "#F5D638",
-                    }}
-                  />
-                  <p>{item.population}</p>
-                </div>
-              </div>
-            ))}
-        </ul>
-      </div>
+      <RulerBar data={data} focusYear={focusYear} />
     </div>
   );
 }
